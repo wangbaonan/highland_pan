@@ -1,0 +1,21 @@
+spring:
+  mvc:
+    servlet:
+      load-on-startup: 1
+  # Application Config
+  application:
+    name: pan-database
+  # DataSource Config
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/pan_highland
+    username: root
+    password: 110680100029wbn
+
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*.xml
+
+server:
+  port: 8080

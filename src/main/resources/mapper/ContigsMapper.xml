@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pog.highlandpan.mapper.ContigsMapper">
+
+    <resultMap id="BaseResultMap" type="pog.highlandpan.domain.Contigs">
+        <id property="contigId" column="contig_id" jdbcType="VARCHAR"/>
+        <result property="population" column="population" jdbcType="VARCHAR"/>
+        <result property="category" column="category" jdbcType="VARCHAR"/>
+        <result property="chr" column="chr" jdbcType="VARCHAR"/>
+        <result property="start" column="start" jdbcType="VARCHAR"/>
+        <result property="calcStart" column="calc_start" jdbcType="BIGINT"/>
+        <result property="end" column="end" jdbcType="VARCHAR"/>
+        <result property="calcEnd" column="calc_end" jdbcType="BIGINT"/>
+        <result property="contig" column="contig" jdbcType="VARCHAR"/>
+        <result property="sample" column="sample" jdbcType="VARCHAR"/>
+        <result property="strand" column="strand" jdbcType="VARCHAR"/>
+        <result property="length" column="length" jdbcType="BIGINT"/>
+        <result property="gene" column="gene" jdbcType="VARCHAR"/>
+        <result property="annotation" column="annotation" jdbcType="VARCHAR"/>
+        <result property="eoriNumber" column="eori_number" jdbcType="VARCHAR"/>
+        <result property="cds" column="cds" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        contig_id,population,category,
+        chr,start,calc_start,
+        end,calc_end,contig,
+        sample,strand,length,
+        gene,annotation,eori_number,
+        cds
+    </sql>
+
+    <select id="findContigsByCriteria" resultMap="BaseResultMap">
+        SELECT * FROM contigs
+        <where>
+            <if test="gene != null and gene != ''">
+                AND gene IN
+                <foreach item="item" index="index" collection="gene.split(',')" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="chr != null and chr != ''"> AND chr = #{chr} </if>
+            <if test="population != null and population != ''"> AND population = #{population} </if>
+            <if test="calcStart != null or calcEnd != null">
+                AND (
+                (calc_start &lt;= #{calcStart} AND calc_end &gt;= #{calcStart})
+                OR (calc_start &lt;= #{calcEnd} AND calc_end &gt;= #{calcEnd})
+                OR (calc_start &gt;= #{calcStart} AND calc_end &lt;= #{calcEnd})
+                )
+            </if>
+            <if test="annotation != null and annotation != ''"> AND annotation = #{annotation} </if>
+            <if test="category != null and category != ''"> AND category = #{category} </if>
+        </where>
+        <!-- 根据 eorINumberSort 进行排序 -->
+        <if test="eorINumberSort != null">
+            <choose>
+                <when test="eorINumberSort == 1">
+                    ORDER BY CAST(eori_number AS UNSIGNED) DESC
+                </when>
+                <when test="eorINumberSort == 2">
+                    ORDER BY CAST(eori_number AS UNSIGNED) ASC
+                </when>
+            </choose>
+        </if>
+    </select>
+
+</mapper>
